@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/home/psiembab/Desktop/obiektowe/snake/build",
+  "command": "/usr/bin/g++   -g -Wall -Wextra -pedantic -Werror=return-type -Werror=parentheses -Werror=vla -Werror=array-bounds -Wcast-qual -Wmaybe-uninitialized -std=gnu++14 -o CMakeFiles/snake.dir/main.cpp.o -c /home/psiembab/Desktop/obiektowe/snake/main.cpp",
+  "file": "/home/psiembab/Desktop/obiektowe/snake/main.cpp"
+},
+{
+  "directory": "/home/psiembab/Desktop/obiektowe/snake/build",
+  "command": "/usr/bin/g++   -g -Wall -Wextra -pedantic -Werror=return-type -Werror=parentheses -Werror=vla -Werror=array-bounds -Wcast-qual -Wmaybe-uninitialized -std=gnu++14 -o CMakeFiles/snake.dir/snake.cpp.o -c /home/psiembab/Desktop/obiektowe/snake/snake.cpp",
+  "file": "/home/psiembab/Desktop/obiektowe/snake/snake.cpp"
+}
+]

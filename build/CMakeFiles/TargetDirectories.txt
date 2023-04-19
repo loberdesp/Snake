@@ -1,0 +1,3 @@
+/home/psiembab/Desktop/obiektowe/snake/build/CMakeFiles/snake.dir
+/home/psiembab/Desktop/obiektowe/snake/build/CMakeFiles/edit_cache.dir
+/home/psiembab/Desktop/obiektowe/snake/build/CMakeFiles/rebuild_cache.dir
