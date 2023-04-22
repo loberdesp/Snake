@@ -19,6 +19,8 @@ snakeBoard::snakeBoard(gameMode mode) : msmode(mode) {
     for(int i=0;i<boardSize;i++) {
         boardArr[i].resize(BOARD_SIZE);
     }
+    toggleBarrier(5,5);
+    toggleFood(2,2);
 }
 
 
@@ -35,21 +37,45 @@ int snakeBoard::getFieldInfo(int x, int y) const {
     return 0;
 }
 
-void snakeBoard::setFood(int x, int y) {
-    boardArr[y][x].hasFood = 1;
+void snakeBoard::toggleFood(int x, int y) {
+    if(boardArr[y][x].hasFood==0) {
+        boardArr[y][x].hasFood = 1;
+    } else {
+        boardArr[y][x].hasFood = 0;
+    }
 }
 
-void snakeBoard::setBarrier(int x, int y) {
-    boardArr[y][x].hasBarrier = 1;
+void snakeBoard::toggleBarrier(int x, int y) {
+    if(boardArr[y][x].hasBarrier==0) {
+        boardArr[y][x].hasBarrier = 1;
+    } else {
+        boardArr[y][x].hasBarrier = 0;
+    }
 }
 
-void snakeBoard::setSnake(int x, int y) {
-    boardArr[y][x].hasSnake = 1;
+void snakeBoard::toggleSnake(int x, int y) {
+    if(boardArr[y][x].hasSnake==0) {
+        boardArr[y][x].hasSnake = 1;
+    } else {
+        boardArr[y][x].hasSnake = 0;
+    }
 }
 
+int snakeBoard::checkBarrier(int x, int y) const {
+    if(boardArr[y][x].hasBarrier==1) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
 
-
-
+int snakeBoard::checkFood(int x, int y) const {
+    if(boardArr[y][x].hasFood==1) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
 
 
 
@@ -106,46 +132,72 @@ int snake::getSnakeHeadY() const {
 void snake::snakePush() {
     snakeElem newElem;
     snakeBody.push_back(newElem);
+    length++;
 }
 
 void snake::snakeInit() {
     snakeElem initElem;
     initElem.setPos(BOARD_SIZE/2,BOARD_SIZE/2);
     snakeBody.push_back(initElem);
-    msboard.setSnake(BOARD_SIZE/2,BOARD_SIZE/2);
+    msboard.toggleSnake(BOARD_SIZE/2,BOARD_SIZE/2);
     initElem.setPos((BOARD_SIZE/2),(BOARD_SIZE/2)+1);
     snakeBody.push_back(initElem);
-    msboard.setSnake((BOARD_SIZE/2),(BOARD_SIZE/2)+1);
+    msboard.toggleSnake((BOARD_SIZE/2),(BOARD_SIZE/2)+1);
     length = snakeBody.size()-1;
 }
 
 void snake::snakePop() {
     snakeBody.pop_back();
+    length--;
+}
+
+void snake::updateSnake() {
+    if(msboard.checkFood(snakeBody[0].getElemX(), snakeBody[0].getElemY())==1) {
+        msboard.toggleFood(snakeBody[0].getElemX(), snakeBody[0].getElemY());
+        snakePush();
+    }
+    if(msboard.checkBarrier(snakeBody[0].getElemX(), snakeBody[0].getElemY())==1) {
+        snakeState=0;
+    }
+}
+
+int snake::isLegal(dir direction) const {
+    if((direction==TOP && snakeBody[0].getDirection()!=DOWN) || (direction==RIGHT && snakeBody[0].getDirection()!=LEFT) || (direction==DOWN && snakeBody[0].getDirection()!=TOP) || (direction==LEFT && snakeBody[0].getDirection()!=RIGHT)) {
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 void snake::move(dir direction) {
+    msboard.toggleSnake(snakeBody.back().getElemX(),snakeBody.back().getElemY());
+    for(int i=snakeBody.size()-1;i>0;i--) {
+        snakeBody[i].setPos(snakeBody[i-1].getElemX(),snakeBody[i-1].getElemY());
+        std::cout << "element " << i << "x " << snakeBody[i].getElemX() << "y " << snakeBody[i].getElemY() << std::endl;
+    }
     switch(direction) {
         case TOP:
-            snakeBody[0].setDir(TOP);
-            snakeBody[0].setPos(getSnakeHeadX(),getSnakeHeadY()-1);
-            msboard.setSnake(getSnakeHeadX(),getSnakeHeadY());
+                snakeBody[0].setDir(TOP);
+                snakeBody[0].setPos(getSnakeHeadX(),getSnakeHeadY()-1);
+                msboard.toggleSnake(getSnakeHeadX(),getSnakeHeadY());
         break;
         case RIGHT:
-            snakeBody[0].setDir(RIGHT);
-            snakeBody[0].setPos(getSnakeHeadX()+1,getSnakeHeadY());
-            msboard.setSnake(getSnakeHeadX(),getSnakeHeadY());
+                snakeBody[0].setDir(RIGHT);
+                snakeBody[0].setPos(getSnakeHeadX()+1,getSnakeHeadY());
+                msboard.toggleSnake(getSnakeHeadX(),getSnakeHeadY());
         break;
         case DOWN:
-            snakeBody[0].setDir(DOWN);
-            snakeBody[0].setPos(getSnakeHeadX(),getSnakeHeadY()+1);
-            msboard.setSnake(getSnakeHeadX(),getSnakeHeadY());
+                snakeBody[0].setDir(DOWN);
+                snakeBody[0].setPos(getSnakeHeadX(),getSnakeHeadY()+1);
+                msboard.toggleSnake(getSnakeHeadX(),getSnakeHeadY());
         break;
         case LEFT:
-            snakeBody[0].setDir(LEFT);
-            snakeBody[0].setPos(getSnakeHeadX()-1,getSnakeHeadY());
-            msboard.setSnake(getSnakeHeadX(),getSnakeHeadY());
+                snakeBody[0].setDir(LEFT);
+                snakeBody[0].setPos(getSnakeHeadX()-1,getSnakeHeadY());
+                msboard.toggleSnake(getSnakeHeadX(),getSnakeHeadY());
         break;
     }
+    updateSnake();
 }
 
 
@@ -196,9 +248,13 @@ void MSSFMLView::draw(sf::RenderWindow &window) {
             switch(mssnakeBoard.getFieldInfo(j,i)) {
                 case 'b':
                     sprite[1].setTexture(txtVec[4]);
+                    sprite[1].setPosition(j*spriteSize,i*spriteSize);
+                    window.draw(sprite[1]);
                 break;
                 case 'f':
                     sprite[1].setTexture(txtVec[5]);
+                    sprite[1].setPosition(j*spriteSize,i*spriteSize);
+                    window.draw(sprite[1]);
                 break;
                 case 's':
                     if(mssnake.getSnakeHeadX()==j && mssnake.getSnakeHeadY()==i) {
@@ -225,16 +281,24 @@ void MSSFMLView::handleExit(sf::RenderWindow &window, sf::Event event) {
 void MSSFMLView::handleClick(sf::RenderWindow &window, sf::Event event) {
     if(event.type == sf::Event::KeyPressed) {
         if(event.key.code == sf::Keyboard::W) {
-            mssnake.move(TOP);
+            if(mssnake.isLegal(TOP)==1) {
+                mssnake.move(TOP);
+            }
         }
         if(event.key.code == sf::Keyboard::S) {
-            mssnake.move(DOWN);
+            if(mssnake.isLegal(DOWN)==1) {
+                mssnake.move(DOWN);
+            }
         }
         if(event.key.code == sf::Keyboard::A) {
-            mssnake.move(LEFT);
+            if(mssnake.isLegal(LEFT)==1) {
+                mssnake.move(LEFT);
+            }
         }
         if(event.key.code == sf::Keyboard::D) {
-            mssnake.move(RIGHT);
+            if(mssnake.isLegal(RIGHT)==1) {
+                mssnake.move(RIGHT);
+            }
         }
     }
 }

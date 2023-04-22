@@ -27,9 +27,11 @@ class snakeBoard {
     public:
         snakeBoard(gameMode mode);
         int getFieldInfo(int x, int y) const;
-        void setFood(int x, int y);
-        void setBarrier(int x, int y);
-        void setSnake(int x, int y);
+        void toggleFood(int x, int y);
+        void toggleBarrier(int x, int y);
+        void toggleSnake(int x, int y);
+        int checkFood(int x, int y) const;
+        int checkBarrier(int x, int y) const;
 };
 
 class snakeElem {
@@ -63,6 +65,8 @@ class snake {
         void snakeInit();
         void snakePop();
         void move(dir direction);
+        int isLegal(dir direction) const;
+        void updateSnake();
 
 };
 
