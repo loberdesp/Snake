@@ -1,9 +1,10 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <iostream>
+#include <random>
 
 #define TILE_SIZE 16
-#define BOARD_SIZE 15
+#define BOARD_SIZE 16
 #define WINDOW_SIZE 800
 
 struct field {
@@ -15,23 +16,27 @@ struct field {
         field();
 };
 
-enum gameMode {DEBUG, EASY, MEDIUM, HARD};
+enum gameMode {MENU, EASY, MEDIUM, HARD};
 enum gameState {RUNNING, WIN, LOSS};
 enum dir{TOP, RIGHT, DOWN, LEFT};
 
 class snakeBoard {
-    int boardSize;
     std::vector< std::vector <field> > boardArr;
     gameMode msmode;
 
     public:
         snakeBoard(gameMode mode);
+        int getDif() const;
         int getFieldInfo(int x, int y) const;
         void toggleFood(int x, int y);
         void toggleBarrier(int x, int y);
         void toggleSnake(int x, int y);
         int checkFood(int x, int y) const;
         int checkBarrier(int x, int y) const;
+        int checkSnake(int x, int y) const;
+        void setDif(gameMode mode);
+        void rngFood();
+        void rngBarrier();
 };
 
 class snakeElem {
@@ -53,6 +58,7 @@ class snake {
     bool snakeState;
     std::vector<snakeElem> snakeBody;
     snakeBoard &msboard;
+    sf::Clock clock;
 
     public:
         snake(snakeBoard &board);
@@ -63,10 +69,12 @@ class snake {
         int getLength() const;
         void snakePush();
         void snakeInit();
-        void snakePop();
-        void move(dir direction);
         int isLegal(dir direction) const;
-        void updateSnake();
+        void move();
+        int updateSnake();
+        void zegarUpdate();
+        void changeDir(dir direction);
+        void checkBounds();
 
 };
 
@@ -74,14 +82,14 @@ class MSSFMLView {
     double scale, spriteSize;
     snakeBoard &mssnakeBoard;
     snake &mssnake;
-    sf::Texture txtVec[10];
-    sf::Sprite sprite[5];
+    sf::Texture txtVec[15];
+    sf::Sprite sprite[10];
     
 
     public:
         MSSFMLView(snakeBoard &snakeBoard, snake &snakeVar);
         void draw(sf::RenderWindow &window);
         void drawField(sf::RenderWindow &window, int j, int i);
-        void handleExit(sf::RenderWindow &window, sf::Event event);
-        void handleClick(sf::RenderWindow &window, sf::Event event);
+        void exit(sf::RenderWindow &window, sf::Event event);
+        void controls(sf::Event event);
 };

@@ -1,17 +1,17 @@
 #include "snake.h"
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(WINDOW_SIZE, WINDOW_SIZE), "Minesweeper");
-    window.setVerticalSyncEnabled(false);
+    sf::RenderWindow window(sf::VideoMode(WINDOW_SIZE, WINDOW_SIZE), "Snake");
     window.setFramerateLimit(60);
-    snakeBoard board(EASY);
-    snake wonsz(board);
-    MSSFMLView view(board, wonsz);
+    snakeBoard board(MENU);
+    snake waz(board);
+    MSSFMLView view(board, waz);
     while (window.isOpen()) {
+        waz.zegarUpdate();
             sf::Event event;
             while (window.pollEvent(event)) {
-                view.handleExit(window, event);
-                view.handleClick(window, event);
+                view.exit(window, event);
+                view.controls(event);
             }
     window.clear();
     view.draw(window);
