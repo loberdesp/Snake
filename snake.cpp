@@ -20,18 +20,6 @@ snakeBoard::snakeBoard(gameMode mode) : msmode(mode) {
     }
 }
 
-void snakeBoard::rngFood() {
-    std::random_device rd;
-    std::mt19937 mt(rd());
-    std::uniform_int_distribution<std::mt19937::result_type> dist(0,BOARD_SIZE-1);
-    int rngHeight = dist(mt);
-    int rngWidth = dist(mt);
-    /*while(checkSnake(rngWidth, rngHeight)==1 || checkBarrier(rngWidth, rngHeight)==1) {
-        rngHeight = dist(mt);
-        rngWidth = dist(mt);
-    }*/
-    toggleFood(rngWidth, rngHeight);
-}
 
 int snakeBoard::getDif() const {
     return msmode;
@@ -98,13 +86,55 @@ int snakeBoard::checkSnake(int x, int y) const {
     }
 }
 
-void snakeBoard::rngBarrier() {
+int snakeBoard::rngCoord() {
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_int_distribution<std::mt19937::result_type> dist(0,BOARD_SIZE-1);
+    int rng = dist(mt);
+    return rng;
+}
 
+void snakeBoard::rngFood() {
+    int rngHeight = rngCoord();
+    int rngWidth = rngCoord();
+    while(checkSnake(rngWidth, rngHeight)==1 || checkBarrier(rngWidth, rngHeight)==1) {
+        rngHeight = rngCoord();
+        rngWidth = rngCoord();
+    }
+    toggleFood(rngWidth, rngHeight);
+}
+
+void snakeBoard::rngBarrier(gameMode mode) {
+    double barRate;
+    int size = BOARD_SIZE*BOARD_SIZE;
+    switch(mode) {
+        case EASY:
+            barRate = (double)30/1;
+        break;
+        case MEDIUM:
+            barRate = (double)30/2;
+        break;
+        case HARD:
+            barRate = (double)30/3;
+        break;
+        case MENU:
+        break;
+    }
+    int numOfBars = std::ceil(size/barRate);
+    for(int i=0; i<numOfBars;i++) {
+        int rngHeight = rngCoord();
+        int rngWidth = rngCoord();
+        while(rngHeight<1 && rngHeight>BOARD_SIZE-1) {
+            rngHeight = rngCoord();
+            rngWidth = rngCoord();
+        }
+        toggleBarrier(rngWidth, rngHeight);
+    }
 }
 
 void snakeBoard::setDif(gameMode mode) {
     msmode=mode;
-    rngBarrier();
+    rngBarrier(mode);
     rngFood();
 }
 
@@ -288,7 +318,7 @@ void snake::move() {
 void snake::zegarUpdate() {
     if(msboard.getDif()!=MENU) {
         sf::Time time1 = clock.getElapsedTime();
-        if(time1.asMilliseconds()>=100) {
+        if(time1.asMilliseconds()>=500) {
             clock.restart();
             move();
             updateSnake();
@@ -361,7 +391,7 @@ void MSSFMLView::drawField(sf::RenderWindow &window, int i, int j) {
 
 void MSSFMLView::draw(sf::RenderWindow &window) {
     if(mssnakeBoard.getDif()==MENU) {
-        window.clear(sf::Color::White);
+        window.clear(sf::Color::Green);
         sprite[2].setTexture(txtVec[6]);
         sprite[2].setPosition(131, 50);
         window.draw(sprite[2]);
@@ -421,10 +451,10 @@ void MSSFMLView::controls(sf::Event event) {
             mssnakeBoard.setDif(HARD);
         }
         if(event.key.code == sf::Keyboard::Num2) {
-            mssnakeBoard.setDif(EASY);
+            mssnakeBoard.setDif(MEDIUM);
         }
         if(event.key.code == sf::Keyboard::Num1) {
-            mssnakeBoard.setDif(MEDIUM);
+            mssnakeBoard.setDif(EASY);
         }
     } else {
         if(event.type == sf::Event::KeyPressed) {

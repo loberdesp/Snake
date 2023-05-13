@@ -35,8 +35,9 @@ class snakeBoard {
         int checkBarrier(int x, int y) const;
         int checkSnake(int x, int y) const;
         void setDif(gameMode mode);
+        int rngCoord();
         void rngFood();
-        void rngBarrier();
+        void rngBarrier(gameMode mode);
 };
 
 class snakeElem {
@@ -75,6 +76,7 @@ class snake {
         void zegarUpdate();
         void changeDir(dir direction);
         void checkBounds();
+        void 
 
 };
 
